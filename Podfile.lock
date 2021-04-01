@@ -9,7 +9,7 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire (= 5.4.0)
-  - GooglePlaces
+  - GooglePlaces (= 4.0.0)
   - Kingfisher (= 5.15.7)
 
 SPEC REPOS:
@@ -25,6 +25,6 @@ SPEC CHECKSUMS:
   GooglePlaces: ca8d4aba09ba79e0a829cf1dca03a41de6a09016
   Kingfisher: 6e1a13523fcb1c86924ce53affe4ac957e544d59
 
-PODFILE CHECKSUM: 6acd44a4a5e632540d9c8238f9d21a0135d194e8
+PODFILE CHECKSUM: 5760bc065b802aae89f21d340af88f37f39d3362
 
 COCOAPODS: 1.10.0
