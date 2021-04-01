@@ -8,11 +8,13 @@
 import UIKit
 
 class DailyWeatherTableViewCell: UITableViewCell {
+    
     @IBOutlet weak var dayOfWeek: UILabel!
     @IBOutlet weak var temperature: UILabel!
     @IBOutlet weak var weatherImage: UIImageView!
     
-    
+    static var identifier = "dailyCell"
+
 
     override func awakeFromNib() {
         super.awakeFromNib()

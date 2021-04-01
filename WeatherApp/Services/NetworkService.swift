@@ -7,14 +7,17 @@
 
 import Foundation
 import Alamofire
+import GooglePlaces
 
 protocol NetworkServiceProtocol {
-    func getWeather(completion: @escaping (Result<Weather?, Error>) -> Void)
+    func getWeather(coordinates: CLLocationCoordinate2D, completion: @escaping (Result<Weather?, Error>) -> Void)
+    func getCurrentCity(completion: @escaping (Result<GMSPlace?, Error>) -> Void)
 }
 
 class NetworkService: NetworkServiceProtocol {
-    func getWeather(completion: @escaping (Result<Weather?, Error>) -> Void) {
-        let url = "https://api.openweathermap.org/data/2.5/onecall?lat=47.858689&lon=35.110882&exclude=alerts&appid=790e0af58858871d1b07665bd226d09d&lang=ru"
+    
+    func getWeather(coordinates: CLLocationCoordinate2D, completion: @escaping (Result<Weather?, Error>) -> Void) {
+        let url = "https://api.openweathermap.org/data/2.5/onecall?lat=\(coordinates.latitude)&lon=\(coordinates.longitude)&exclude=alerts&appid=790e0af58858871d1b07665bd226d09d&lang=ru"
         
         AF.request(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: nil)
             .responseString {
@@ -29,8 +32,29 @@ class NetworkService: NetworkServiceProtocol {
                     } catch (let exception) {
                         completion(.failure(exception))
                     }
-                   
+                    
                 }
+            }
+    }
+    
+    func getCurrentCity(completion: @escaping (Result<GMSPlace?, Error>) -> Void) {
+        
+        let placesClient = GMSPlacesClient()
+        let placeFields: GMSPlaceField =  [.name, .formattedAddress, .coordinate]
+        
+        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) { [weak self] (placeLikelihoods, error) in
+            guard self != nil else {
+                return
+            }
+            guard error == nil else {
+                completion(.failure(error!))
+                return
+            }
+            
+            guard let placeInfo = placeLikelihoods?.first?.place else { return }
+            
+            completion(.success(placeInfo))
+            
         }
     }
     

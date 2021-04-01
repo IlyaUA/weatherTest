@@ -9,9 +9,8 @@ import Foundation
 
 class TimestampConverter {
     
-    static let sharedInstance = TimestampConverter()
     
-    func convertToDate(dateFormat: String, timestamp: Double) -> String {
+    static func convertToDate(dateFormat: String, timestamp: Double) -> String {
         let date = Date(timeIntervalSince1970: timestamp)
         let dateFormatter = DateFormatter()
         dateFormatter.timeStyle = DateFormatter.Style.medium //Set time style
@@ -21,7 +20,7 @@ class TimestampConverter {
         return dateFormatter.string(from: date)
     }
     
-    func getDayOfWeek(timestamp: Double)->String? {
+    static func getDayOfWeek(timestamp: Double)->String? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "Y-m-d"
         let todayDate = Date(timeIntervalSince1970: timestamp)
@@ -49,30 +48,17 @@ class TimestampConverter {
         }
     }
     
-    func getTime(timestamp: Double?) -> String {
+    static func getFormatedDate(format: String, timestamp: Double?) -> String {
         if (timestamp != nil) {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "HH:mm"
+            dateFormatter.dateFormat = format//"HH:mm"
             let date = Date(timeIntervalSince1970: timestamp!)
             
             return dateFormatter.string(from: date)
         } else {
             return "Hour"
         }
-       
+        
     }
-    func test(format: String, timestamp: Double?) -> String {
-        if (timestamp != nil) {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = format
-            let date = Date(timeIntervalSince1970: timestamp!)
-            
-            return dateFormatter.string(from: date)
-        } else {
-            return "Hour"
-        }
-       
-    }
-    
     
 }

@@ -8,9 +8,12 @@
 import UIKit
 
 class HourlyCollectionViewCell: UICollectionViewCell {
+    
     @IBOutlet weak var hour: UILabel!
     @IBOutlet weak var weatherImage: UIImageView!
     @IBOutlet weak var temperature: UILabel!
+    
+    static var identifier = "hourlyCell"
     
     override func awakeFromNib() {
         super.awakeFromNib()

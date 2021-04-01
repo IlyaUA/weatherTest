@@ -15,7 +15,8 @@ class ModuleBuilder: Builder {
     static func createMainModule() -> UIViewController {
         let view = MainViewController()
         let networkService = NetworkService()
-        let presenter = MainPresenter(view: view, networkService: networkService)
+        let locationService = LocationService()
+        let presenter = MainPresenter(view: view, networkService: networkService, locationService: locationService)
         view.presenter = presenter
         return view
     }
