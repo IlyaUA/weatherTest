@@ -51,7 +51,7 @@ class TimestampConverter {
     static func getFormatedDate(format: String, timestamp: Double?) -> String {
         if (timestamp != nil) {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = format//"HH:mm"
+            dateFormatter.dateFormat = format
             let date = Date(timeIntervalSince1970: timestamp!)
             
             return dateFormatter.string(from: date)

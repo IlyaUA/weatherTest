@@ -27,4 +27,12 @@ class DailyWeatherTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
+    func setupWeather (with dailyWeather: Daily) {
+        temperature.text = String(format: "%.0f", (dailyWeather.temp.day ) - 273.15) + "°" + "/" + String(format: "%.0f", (dailyWeather.temp.night ) - 273.15) + "°"
+        dayOfWeek.text = TimestampConverter.getDayOfWeek(timestamp: (dailyWeather.dt))
+        if let iconName = dailyWeather.weather.first?.icon {
+        let url = URL(string: "http://openweathermap.org/img/wn/\(iconName)@2x.png")
+        weatherImage.kf.setImage(with: url)
+        }
+    }
 }

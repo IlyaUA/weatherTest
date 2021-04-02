@@ -25,36 +25,51 @@ class MainViewController: UIViewController {
     var presenter: MainViewPresenterProtocol!
     //var locationManager: CLLocationManager?
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+        presenter.checkLocationFromMap()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        print()
+        //setupUI
         let nibName = UINib(nibName: DailyWeatherTableViewCell.className, bundle: nil)
         tableView.register(nibName, forCellReuseIdentifier: DailyWeatherTableViewCell.identifier)
         
         let customCellNib = UINib(nibName: HourlyCollectionViewCell.className, bundle: .main)
         collectionView.register(customCellNib, forCellWithReuseIdentifier: HourlyCollectionViewCell.identifier)
         
-        locationButton.leftImage(image: UIImage(named: "pin1")!)
+        if let image = UIImage(named: "pin1") {
+            locationButton.leftImage(image: image)
+        }
+       
+    }
+    
+    func setupWeatherImage(image: UIImage) {
+        weatherImage.image = image
     }
     
     
     @IBAction func chooseCity(_ sender: Any) {
+        
         let autocompleteController = GMSAutocompleteViewController()
         autocompleteController.delegate = self
-
-        // Specify the place data types to return.
         let fields: GMSPlaceField = GMSPlaceField(rawValue: UInt(GMSPlaceField.name.rawValue) |
                                                     UInt(GMSPlaceField.coordinate.rawValue))
         autocompleteController.placeFields = fields
-
-        // Specify a filter.
         let filter = GMSAutocompleteFilter()
         filter.type = .city
         autocompleteController.autocompleteFilter = filter
-
-        // Display the autocomplete view controller.
         present(autocompleteController, animated: true, completion: nil)
+         
     }
+    
+    @IBAction func openMapButtonAction(_ sender: Any) {
+        presenter.openMap()
+    }
+    
+    
 }
 
 extension MainViewController: UITableViewDataSource {
@@ -63,20 +78,15 @@ extension MainViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "dailyCell", for: indexPath) as! DailyWeatherTableViewCell
-        let dayWeather = presenter.weather?.daily[indexPath.row]
-        cell.temperature.text = String(format: "%.0f", (dayWeather?.temp.day ?? 273.15) - 273.15) + "°" + "/" + String(format: "%.0f", (dayWeather?.temp.night ?? 273.15) - 273.15) + "°"
-        cell.dayOfWeek.text = TimestampConverter.getDayOfWeek(timestamp: (dayWeather?.dt)!)
-        DispatchQueue.global(qos: .background).async {
-            let url = URL(string: "http://openweathermap.org/img/wn/\(dayWeather?.weather[0].icon ?? "")@2x.png")
-            DispatchQueue.main.async {
-                cell.weatherImage.kf.setImage(with: url)
-            }
+        let cell = tableView.dequeueReusableCell(withIdentifier: DailyWeatherTableViewCell.identifier, for: indexPath) as! DailyWeatherTableViewCell
+        if let dayWeather = presenter.weather?.daily[indexPath.row] {
+        cell.setupWeather(with: dayWeather)
         }
         return cell
     }
     
 }
+// TODO temp formatter, + module for search + location
 extension MainViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -89,16 +99,11 @@ extension MainViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "hourlyCell", for: indexPath) as! HourlyCollectionViewCell
-        let hourlyWeather = presenter.weather?.hourly[indexPath.row]
-        cell.temperature.text = String(format: "%.0f", (hourlyWeather?.temp ?? 273.15) - 273.15) + "°"
-        cell.hour.text = TimestampConverter.getFormatedDate(format: "HH:mm", timestamp: hourlyWeather?.dt ?? nil)
-        DispatchQueue.global(qos: .background).async {
-            let url = URL(string: "http://openweathermap.org/img/wn/\(hourlyWeather?.weather[0].icon ?? "777")@2x.png")
-            DispatchQueue.main.async {
-                cell.weatherImage.kf.setImage(with: url)
-            }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HourlyCollectionViewCell.identifier, for: indexPath) as! HourlyCollectionViewCell
+        if let hourlyWeather = presenter.weather?.hourly[indexPath.row] {
+            cell.setupHourlyWeather(hourlyWeather: hourlyWeather)
         }
+        
         return cell
     }
     
@@ -112,6 +117,7 @@ extension MainViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension MainViewController: MainViewProtocol {
+        
     func updateUI(with currentWeather: Current?, place: GMSPlace?) {
         if (currentWeather != nil) {
             presenter.loadCurrentWeatherImage(imageView: weatherImage)
@@ -119,7 +125,12 @@ extension MainViewController: MainViewProtocol {
             temperature.text = String(format: "%.0f", (currentWeather?.temp ?? 273.15) - 273.15) + "°"
             wet.text = String(currentWeather?.humidity ?? 0) + "%"
             wind.text = String(currentWeather?.windSpeed ?? 0) + "м/с"
-            locationButton.setTitle(place?.name, for: .normal)
+            if let placeName = place?.name {
+                locationButton.setTitle(placeName, for: .normal)
+            } else if let mapPlaceName = LocationModel.sharedInstance.city {
+                locationButton.setTitle(mapPlaceName, for: .normal)
+            }
+            
             tableView.reloadData()
             collectionView.reloadData()
         }
