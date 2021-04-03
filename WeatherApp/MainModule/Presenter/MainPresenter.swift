@@ -61,7 +61,6 @@ class MainPresenter: MainViewPresenterProtocol, LocationAuthorizationChangeDeleg
         self.locationService = locationService
         self.router = router
         self.locationService.locationAuthorizationDelegate = self
-        getWeatherCurrentPlace()
     }
     
     func getWeatherCurrentPlace() {
