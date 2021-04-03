@@ -11,11 +11,15 @@ import GooglePlaces
 import CoreLocation
 import Kingfisher
 
+protocol LocationAuthorizationChangeDelegate {
+    func authorizationChangeHandler(state: Bool)
+}
 
 protocol MainViewProtocol: class {
     func updateUI(with currentWeather: Current?, place: GMSPlace?)
     func failure(failure: Error)
     func setupWeatherImage(image: UIImage)
+    func locationAuthDenied()
 }
 
 protocol MainViewPresenterProtocol: class {
@@ -29,13 +33,26 @@ protocol MainViewPresenterProtocol: class {
 }
 
 
-class MainPresenter: MainViewPresenterProtocol {
+class MainPresenter: MainViewPresenterProtocol, LocationAuthorizationChangeDelegate {
+    func authorizationChangeHandler(state: Bool) {
+        if state == true {
+            getWeatherCurrentPlace()
+        } else {
+            self.view?.locationAuthDenied()
+            locationFromMap.city = "Zaporizhzhia"
+            locationFromMap.latitude = 47.845546
+            locationFromMap.longitude = 35.130028
+            locationFromMap.presented = false
+            getWeather(place: nil)
+        }
+    }
+    
    
     weak var view: MainViewProtocol?
     let networkService: NetworkServiceProtocol
     var router: RouterProtocol?
     var weather: Weather?
-    let locationService: LocationServiceProtocol
+    var locationService: LocationServiceProtocol
     let locationFromMap = LocationModel.sharedInstance
     
     required init(view: MainViewProtocol, networkService: NetworkServiceProtocol, locationService: LocationServiceProtocol, router: RouterProtocol) {
@@ -43,7 +60,7 @@ class MainPresenter: MainViewPresenterProtocol {
         self.networkService = networkService
         self.locationService = locationService
         self.router = router
-        locationService.checkServiceStatus()
+        self.locationService.locationAuthorizationDelegate = self
         getWeatherCurrentPlace()
     }
     

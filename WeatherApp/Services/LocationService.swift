@@ -11,14 +11,15 @@ import CoreLocation
 
 protocol LocationServiceProtocol {
     func getCurrentLocation() -> CLLocation?
-    func checkServiceStatus () -> Bool
     func startUpdatingLocation()
+    var locationAuthorizationDelegate: LocationAuthorizationChangeDelegate? { get set }
 }
 
 class LocationService: NSObject, CLLocationManagerDelegate, LocationServiceProtocol {
 
     fileprivate let locationManager = CLLocationManager()
     var location: CLLocation?
+    var locationAuthorizationDelegate: LocationAuthorizationChangeDelegate?
 
     override init() {
         super.init()
@@ -27,7 +28,7 @@ class LocationService: NSObject, CLLocationManagerDelegate, LocationServiceProto
         locationManager.requestAlwaysAuthorization()
     }
 
-    func startUpdatingLocation() { // Start updating called from presenter
+    func startUpdatingLocation() {
         locationManager.startUpdatingLocation()
     }
 
@@ -44,23 +45,21 @@ class LocationService: NSObject, CLLocationManagerDelegate, LocationServiceProto
         }
     }
     
-    func checkServiceStatus () -> Bool {
-        var statusChecker = false
-        switch locationManager.authorizationStatus {
-        case .notDetermined, .restricted, .denied:
-            statusChecker = false
-        case .authorizedAlways, .authorizedWhenInUse:
-            statusChecker = true
-        @unknown default:
-            statusChecker = false
-            break
-        }
-        return statusChecker
-    }
-    
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error.localizedDescription)
         
+    }
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .authorizedAlways , .authorizedWhenInUse:
+            locationAuthorizationDelegate?.authorizationChangeHandler(state: true)
+            break
+        case .denied , .restricted:
+            locationAuthorizationDelegate?.authorizationChangeHandler(state: false)
+            break
+        default:
+            break
+        }
     }
     
 }

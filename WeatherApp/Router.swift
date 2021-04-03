@@ -32,7 +32,6 @@ class Router: RouterProtocol {
     func initialViewController() {
         if let navigationController = navigationController {
             guard let mainViewController = assemblyBuilder?.createMainModule(router: self) else { return }
-            navigationController.navigationBar.isHidden = true
             navigationController.viewControllers = [mainViewController]
         }
     }
@@ -47,7 +46,6 @@ class Router: RouterProtocol {
     
     func popToRoot() {
         if let navigationController = navigationController {
-            navigationController.navigationBar.isHidden = true
             navigationController.popToRootViewController(animated: true)
         }
     }

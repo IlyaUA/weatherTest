@@ -33,13 +33,10 @@ class MapViewController: UIViewController {
         if press.state == .ended {
             let point = press.location(in: self.mapView)
             let coordinates = self.mapView.convert(point, toCoordinateFrom: self.mapView)
-            
-            //  add pin on selected coordinates
             let pointAnnotation = MKPointAnnotation()
             pointAnnotation.coordinate = coordinates
             self.mapView.addAnnotation(pointAnnotation)
-            
-            presenter.confirmAddingCity(coordinate: pointAnnotation.coordinate) { AlertAction in
+            presenter.showSelectedCity(coordinate: pointAnnotation.coordinate) { AlertAction in
                 switch AlertAction {
                 case .cancel:
                     self.mapView.removeAnnotation(pointAnnotation)
@@ -49,14 +46,11 @@ class MapViewController: UIViewController {
             }
         }
     }
-    
-    
-
 }
 
 
 extension MapViewController: MapViewProtocol {
-    func confirmSelectedLocation(title: String, message: String, actions: [(title: String, action: () -> Void)]?) {
+    func showSelectedPlace(title: String, message: String, actions: [(title: String, action: () -> Void)]?) {
         let viewController = self
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         if let actions = actions {
@@ -67,7 +61,7 @@ extension MapViewController: MapViewProtocol {
                 alert.addAction(alertAction)
             }
         } else {
-            let okAction = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+            let okAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
             alert.addAction(okAction)
         }
         viewController.present(alert, animated: true, completion: nil)

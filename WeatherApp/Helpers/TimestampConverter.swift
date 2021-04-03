@@ -43,7 +43,6 @@ class TimestampConverter {
         case 7:
             return "Sat"
         default:
-            print("Error fetching days")
             return "Day"
         }
     }

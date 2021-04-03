@@ -117,6 +117,7 @@ extension MainViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension MainViewController: MainViewProtocol {
+   
         
     func updateUI(with currentWeather: Current?, place: GMSPlace?) {
         if (currentWeather != nil) {
@@ -139,6 +140,11 @@ extension MainViewController: MainViewProtocol {
     func failure(failure: Error) {
         print(failure.localizedDescription)
     }
+    
+    func locationAuthDenied() {
+        self.showAlert(title: "Location Aythorization Error", message: "For the application to work correctly, it is advisable to grant permission to use the geolocation", style: .default, buttonTitle: "OK")
+    }
+    
 }
 
 extension MainViewController: GMSAutocompleteViewControllerDelegate {
